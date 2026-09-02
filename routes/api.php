@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketAssignmentController;
 use App\Http\Controllers\Api\AdminDashboardController;
+use App\Http\Controllers\Api\AdminAgentController;
 
 
 /*
@@ -99,5 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
             '/admin/dashboard',
             [AdminDashboardController::class, 'index']
         );
+
+        Route::post('/admin/agents', [AdminAgentController::class, 'store']);
     });
 });
