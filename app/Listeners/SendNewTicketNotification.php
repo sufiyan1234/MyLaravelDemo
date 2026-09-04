@@ -3,10 +3,9 @@
 namespace App\Listeners;
 
 use App\Events\TicketCreated;
-use App\Mail\QueueNewTicketCreated;
+use App\Jobs\SendNewTicketEmail;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Mail;
 
 class SendNewTicketNotification implements ShouldQueue
 {
@@ -27,8 +26,11 @@ class SendNewTicketNotification implements ShouldQueue
             . '/edit';
 
         foreach ($admins as $admin) {
-            Mail::to($admin->email)
-                ->send(new QueueNewTicketCreated($ticket, $editUrl));
+            SendNewTicketEmail::dispatch(
+                $ticket,
+                $admin->email,
+                $editUrl
+            );
         }
     }
 }
