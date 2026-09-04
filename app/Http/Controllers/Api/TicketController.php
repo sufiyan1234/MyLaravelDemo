@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\NewTicketCreated;
+use App\Mail\QueueNewTicketCreated;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -121,11 +122,18 @@ class TicketController extends Controller
             . $ticket->id
             . '/edit';
 
-        // Send the new-ticket email to every administrator
+        // Send the new-ticket email to every administrator synchronously
+        // foreach ($admins as $admin) {
+        //     Mail::to($admin->email)
+        //         ->send(new NewTicketCreated($ticket, $editUrl));
+        // }
+
+        // Send the new-ticket email to every administrator asynchronously via queue
         foreach ($admins as $admin) {
             Mail::to($admin->email)
-                ->send(new NewTicketCreated($ticket, $editUrl));
+                ->queue(new QueueNewTicketCreated($ticket, $editUrl));
         }
+
 
         return response()->json([
             'message' => 'Ticket created successfully',
