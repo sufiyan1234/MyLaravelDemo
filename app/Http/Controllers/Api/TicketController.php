@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\NewTicketCreated;
-use App\Mail\QueueNewTicketCreated;
+// use App\Mail\NewTicketCreated;
+// use App\Mail\QueueNewTicketCreated;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
+// use Illuminate\Support\Facades\Mail;
+use App\Events\TicketCreated;
 
 class TicketController extends Controller
 {
@@ -108,19 +109,21 @@ class TicketController extends Controller
             'assigned_to' => null,
         ]);
 
+        event(new TicketCreated($ticket));
+
         $ticket->load([
             'creator:id,name,email',
             'agent:id,name,email',
         ]);
 
         // Find all administrators
-        $admins = User::where('role', 'admin')->get();
+        // $admins = User::where('role', 'admin')->get();
 
         // Create the frontend edit URL
-        $editUrl = config('app.frontend_url')
-            . '/admin/tickets/'
-            . $ticket->id
-            . '/edit';
+        // $editUrl = config('app.frontend_url')
+        //     . '/admin/tickets/'
+        //     . $ticket->id
+        //     . '/edit';
 
         // Send the new-ticket email to every administrator synchronously
         // foreach ($admins as $admin) {
@@ -129,10 +132,12 @@ class TicketController extends Controller
         // }
 
         // Send the new-ticket email to every administrator asynchronously via queue
-        foreach ($admins as $admin) {
-            Mail::to($admin->email)
-                ->queue(new QueueNewTicketCreated($ticket, $editUrl));
-        }
+        // foreach ($admins as $admin) {
+        //     Mail::to($admin->email)
+        //         ->queue(new QueueNewTicketCreated($ticket, $editUrl));
+        // }
+
+        
 
 
         return response()->json([
