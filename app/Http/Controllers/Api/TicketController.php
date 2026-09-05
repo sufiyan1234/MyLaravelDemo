@@ -8,6 +8,7 @@ use App\Mail\QueueNewTicketCreated;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class TicketController extends Controller
@@ -130,8 +131,16 @@ class TicketController extends Controller
 
         // Send the new-ticket email to every administrator asynchronously via queue
         foreach ($admins as $admin) {
-            Mail::to($admin->email)
-                ->queue(new QueueNewTicketCreated($ticket, $editUrl));
+            try {
+                Mail::to($admin->email)
+                    ->queue(new QueueNewTicketCreated($ticket, $editUrl));
+            } catch (\Throwable $exception) {
+                Log::error('Unable to queue new ticket email.', [
+                    'ticket_id' => $ticket->id,
+                    'admin_email' => $admin->email,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
         }
 
 
