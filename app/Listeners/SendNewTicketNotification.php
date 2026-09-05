@@ -28,7 +28,7 @@ class SendNewTicketNotification implements ShouldQueue
 
         foreach ($admins as $admin) {
             Mail::to($admin->email)
-                ->send(new QueueNewTicketCreated($ticket, $editUrl));
+                ->queue(new QueueNewTicketCreated($ticket, $editUrl));
         }
     }
 }
